@@ -19,6 +19,7 @@ import (
 	appsv1listers "k8s.io/client-go/listers/apps/v1"
 	corev1listers "k8s.io/client-go/listers/core/v1"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 const (
@@ -45,7 +46,7 @@ func (r ResourceIdentifier) String() string {
 // watchTargetInternal holds the state for a resource being watched.
 type watchTargetInternal struct {
 	identifier ResourceIdentifier
-	uid        metav1.UID // UID of the resource, useful for owner references
+	uid        types.UID // UID of the resource, useful for owner references
 
 	isSatisfied bool
 	err         error
@@ -372,7 +373,6 @@ func (rw *ResourceWatcher) checkResourceStatuses() (allDone bool, Derror error) 
 						log.Printf("Error listing pods for Deployment %s: %v. Will retry.", key, err)
 						continue
 					}
-					hasFailedOwnedPod := false
 					for _, pod := range pods {
 						isOwned := false
 						for _, ownerRef := range pod.GetOwnerReferences() {
